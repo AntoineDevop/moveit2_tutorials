@@ -10,8 +10,6 @@ ARG BASE_BRANCH=
 
 
 FROM moveit/moveit2:${ROS_DISTRO}-source as base_image
-ENV ROS_UNDERLAY /root/ws_moveit/
-WORKDIR $ROS_UNDERLAY
 
 # Copy MoveIt sources from docker context
 COPY . src/moveit2_tutorials
@@ -19,8 +17,6 @@ COPY . src/moveit2_tutorials
 # Commands are combined in single RUN statement with "apt/lists" folder removal to reduce image size
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers
 RUN --mount=type=cache,target=/root/.ccache/ \
-    # Enable ccache
-    PATH=/usr/lib/ccache:$PATH && \
     # Fetch required upstream sources for building
     vcs import src < /root/ws_moveit/src/moveit2_tutorials/.github/upstream.repos && \
     . "/opt/ros/${ROS_DISTRO}/setup.sh" &&\
@@ -99,7 +95,6 @@ RUN   sed -i "s|ament_package()|install(DIRECTORY launch  DESTINATION share/\${P
 #Build the tutorial
 RUN --mount=type=cache,target=/root/.ccache/ \
     # Enable ccache
-    PATH=/usr/lib/ccache:$PATH && \
     . "/opt/ros/${ROS_DISTRO}/setup.sh" &&\
      . "install/setup.sh" &&\
     sudo apt update && rosdep install -r --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y && \
